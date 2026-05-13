@@ -249,7 +249,7 @@ function renderGroupSummary(g) {
 
   return '<div class="cards-grid">' +
     '<div class="card-group"><div class="group-title">Výroba (FVE)</div><div class="metrics">' +
-      '<div class="metric blue"><div class="label">Celková výroba</div><div class="value">' + fmt(prod) + ' <span class="unit">kWh</span></div></div>' +
+      '<div class="metric blue"><div class="label">Celkové přetoky</div><div class="value">' + fmt(prod) + ' <span class="unit">kWh</span></div></div>' +
       '<div class="metric green"><div class="label">Nasdíleno</div><div class="value">' + fmt(shared) + ' <span class="unit">kWh</span></div></div>' +
       '<div class="metric orange"><div class="label">Efektivita</div><div class="value">' + fmt(prodEff) + ' <span class="unit">%</span></div></div>' +
     '</div></div>' +
