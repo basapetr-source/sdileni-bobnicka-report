@@ -266,7 +266,7 @@ function renderProducersTable(g) {
   const visCols = visibleColumns();
   let html = '<table><thead><tr><th>Výrobna</th>';
   for (const m of visCols) html += '<th class="num">' + monthLabels[m] + '</th>';
-  html += '<th class="num">Výroba (kWh)</th><th class="num">Nasdíleno (kWh)</th><th class="num">Přebytek (kWh)</th><th class="num">Efektivita</th></tr></thead><tbody>';
+  html += '<th class="num">Přetoky (kWh)</th><th class="num">Nasdíleno (kWh)</th><th class="num">Prodáno (kWh)</th><th class="num">Efektivita</th></tr></thead><tbody>';
 
   let totProd = 0, totShared = 0, totSurplus = 0;
   for (const p of g.producers) {
