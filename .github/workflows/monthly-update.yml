@@ -1,0 +1,50 @@
+name: Monthly Energy Sharing Report (Bobnická)
+
+on:
+  schedule:
+    # 12th of each month at 06:00 UTC (08:00 CET / 07:00 CEST)
+    - cron: '0 6 12 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run monthly pipeline (export + report)
+        env:
+          EDC_USERNAME: ${{ secrets.EDC_USERNAME }}
+          EDC_PASSWORD: ${{ secrets.EDC_PASSWORD }}
+          SSE_ID_A: ${{ secrets.SSE_ID_A }}
+          SSE_ID_B: ${{ secrets.SSE_ID_B }}
+        run: node run-monthly.js
+
+      - name: Copy report to docs/ for GitHub Pages
+        run: |
+          mkdir -p docs
+          cp report.html docs/index.html
+
+      - name: Commit and push outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add exports/ report.html docs/index.html
+          if git diff --staged --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "Měsíční report $(date -u +'%Y-%m')"
+            git push
+          fi

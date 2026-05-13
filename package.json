@@ -1,0 +1,16 @@
+{
+  "name": "sdileni-bobnicka-report",
+  "version": "1.0.0",
+  "description": "Měsíční report sdílení energie - bytové domy Bobnická A a B",
+  "main": "run-monthly.js",
+  "scripts": {
+    "report": "node generate-report.js && start report.html",
+    "monthly": "node run-monthly.js",
+    "discover": "node discover-sse.js"
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sdílení energie - Bobnická</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f0f2f5; color: #1a1a2e; line-height: 1.5; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 24px 32px; }
+  .header h1 { font-size: 24px; font-weight: 600; }
+  .header .subtitle { color: #a0aec0; font-size: 14px; margin-top: 4px; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+  .filter-bar { margin-bottom: 16px; }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 13px; font-weight: 600; color: #4a5568; min-width: 50px; }
+  .month-btn { padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; }
+  .month-btn.active { background: #3182ce; color: white; border-color: #3182ce; }
+
+  .group-section { background: white; border-radius: 12px; padding: 0; margin-bottom: 32px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow: hidden; }
+  .group-header { padding: 20px 24px; background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); color: white; }
+  .group-header h2 { font-size: 22px; font-weight: 700; letter-spacing: 0.3px; }
+  .group-header .group-sub { color: #cbd5e0; font-size: 13px; margin-top: 4px; }
+  .group-body { padding: 24px; }
+
+  .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .card-group { background: #f7fafc; border-radius: 10px; padding: 16px; border: 1px solid #e2e8f0; }
+  .card-group .group-title { font-size: 12px; text-transform: uppercase; color: #718096; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e2e8f0; }
+  .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .metric .label { font-size: 11px; color: #a0aec0; font-weight: 600; }
+  .metric .value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+  .metric .unit { font-size: 12px; color: #718096; font-weight: 400; }
+  .metric.green .value { color: #38a169; }
+  .metric.blue .value { color: #3182ce; }
+  .metric.orange .value { color: #dd6b20; }
+  .metric.purple .value { color: #805ad5; }
+  @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } }
+
+  .subsection { margin-bottom: 20px; }
+  .subsection h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; color: #2d3748; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #f7fafc; text-align: left; padding: 10px 12px; font-weight: 600; color: #4a5568; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+  td { padding: 8px 12px; border-bottom: 1px solid #edf2f7; }
+  tr:hover td { background: #f7fafc; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .eff { font-weight: 600; }
+  .eff-high { color: #38a169; }
+  .eff-mid { color: #dd6b20; }
+  .eff-low { color: #e53e3e; }
+  .table-scroll { overflow-x: auto; }
+  .total-row td { font-weight: 700; background: #f7fafc !important; border-top: 2px solid #e2e8f0; }
+
+  @media (max-width: 768px) {
+    .container { padding: 12px; }
+    .group-body { padding: 16px; }
+    table { font-size: 11px; }
+    th, td { padding: 6px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Sdílení energie - Bobnická</h1>
+  <div class="subtitle">Vygenerováno: 13. 5. 2026 21:38:27 | Data: Duben 2026</div>
+</div>
+
+<div class="container">
+
+<div class="filter-bar">
+  <div class="filter-row" id="year-filter"></div>
+  <div class="filter-row" id="month-filter"></div>
+</div>
+
+<div id="groups-container"></div>
+
+</div>
+
+<script>
+const months = ["2026-04"];
+const monthLabels = {"2026-04":"Duben 2026"};
+const groupBlocks = [{"id":"A","label":"Vchod A","producers":[{"ean":"859182400611447671","name":"FVE Bobnická A","type":"D","monthly":{"2026-04":{"inSum":2286.5399999999995,"outSum":1702.6899999999991}}}],"consumers":[{"ean":"859182400611941803","name":"Společná spotřeba","type":"O","monthly":{"2026-04":{"inSum":-1302.0999999999938,"outSum":-1017.3100000000005}}},{"ean":"859182400611943012","name":"Byt 1","type":"O","monthly":{"2026-04":{"inSum":-4.87999999999994,"outSum":-3.1299999999999772}}},{"ean":"859182400611944408","name":"Byt 2","type":"O","monthly":{"2026-04":{"inSum":-104.53000000000209,"outSum":-62.8999999999997}}},{"ean":"859182400611943029","name":"Byt 3","type":"O","monthly":{"2026-04":{"inSum":-3.1999999999999758,"outSum":-1.8800000000000014}}},{"ean":"859182400611943036","name":"Byt 4","type":"O","monthly":{"2026-04":{"inSum":-166.5200000000021,"outSum":-103.64000000000112}}},{"ean":"859182400611943043","name":"Byt 5","type":"O","monthly":{"2026-04":{"inSum":-114.52000000000169,"outSum":-69.24000000000055}}},{"ean":"859182400611943050","name":"Byt 6","type":"O","monthly":{"2026-04":{"inSum":-86.63000000000176,"outSum":-63.46000000000021}}},{"ean":"859182400611943067","name":"Byt 7","type":"O","monthly":{"2026-04":{"inSum":-114.4700000000013,"outSum":-81.94000000000065}}},{"ean":"859182400611943074","name":"Byt 8","type":"O","monthly":{"2026-04":{"inSum":-31.280000000000836,"outSum":-19.430000000000046}}},{"ean":"859182400611943081","name":"Byt 9","type":"O","monthly":{"2026-04":{"inSum":-1.440000000000001,"outSum":-0.9000000000000006}}},{"ean":"859182400611943098","name":"Byt 10","type":"O","monthly":{"2026-04":{"inSum":-1.6600000000000013,"outSum":-0.9800000000000006}}},{"ean":"859182400611943104","name":"Byt 11","type":"O","monthly":{"2026-04":{"inSum":-7.299999999999889,"outSum":-4.559999999999947}}},{"ean":"859182400611943111","name":"Byt 12","type":"O","monthly":{"2026-04":{"inSum":-5.369999999999933,"outSum":-3.429999999999971}}},{"ean":"859182400611944613","name":"Byt 13","type":"O","monthly":{"2026-04":{"inSum":-4.339999999999969,"outSum":-2.1599999999999984}}},{"ean":"859182400611943128","name":"Byt 14","type":"O","monthly":{"2026-04":{"inSum":-1.8300000000000014,"outSum":-1.2100000000000009}}},{"ean":"859182400611943135","name":"Byt 15","type":"O","monthly":{"2026-04":{"inSum":-85.25000000000114,"outSum":-56.59000000000012}}},{"ean":"859182400611943142","name":"Byt 16","type":"O","monthly":{"2026-04":{"inSum":-2.4699999999999913,"outSum":-1.460000000000001}}},{"ean":"859182400611943159","name":"Byt 17","type":"O","monthly":{"2026-04":{"inSum":-10.439999999999822,"outSum":-6.479999999999906}}},{"ean":"859182400611943166","name":"Byt 18","type":"O","monthly":{"2026-04":{"inSum":-4.589999999999996,"outSum":-1.5100000000000007}}},{"ean":"859182400611943173","name":"Byt 19","type":"O","monthly":{"2026-04":{"inSum":-8.049999999999908,"outSum":-3.889999999999968}}},{"ean":"859182400611943180","name":"Byt 20","type":"O","monthly":{"2026-04":{"inSum":-41.78000000000052,"outSum":-27.76000000000046}}},{"ean":"859182400611943197","name":"Byt 21","type":"O","monthly":{"2026-04":{"inSum":-1.6700000000000013,"outSum":-0.9600000000000006}}},{"ean":"859182400611943203","name":"Byt 22","type":"O","monthly":{"2026-04":{"inSum":-4.499999999999965,"outSum":-2.8299999999999943}}},{"ean":"859182400611941797","name":"Byt 23","type":"O","monthly":{"2026-04":{"inSum":-17.559999999999903,"outSum":-9.869999999999948}}},{"ean":"859182400611943210","name":"Byt 24","type":"O","monthly":{"2026-04":{"inSum":-2.3299999999999996,"outSum":-1.0600000000000007}}},{"ean":"859182400611943227","name":"Byt 25","type":"O","monthly":{"2026-04":{"inSum":-7.809999999999882,"outSum":-4.949999999999943}}},{"ean":"859182400611941780","name":"Byt 26","type":"O","monthly":{"2026-04":{"inSum":-2.1799999999999975,"outSum":-1.320000000000001}}}],"groupTotals":{"2026-04":{"production":2286.5399999999995,"shared":583.8500000000004,"surplus":1702.6899999999991,"consumption":2138.7000000000044,"received":583.8500000000015,"fromGrid":1554.8500000000035}}},{"id":"B","label":"Vchod B","producers":[{"ean":"859182400611454266","name":"FVE Bobnická B","type":"D","monthly":{"2026-04":{"inSum":949.1599999999978,"outSum":623.5000000000003}}}],"consumers":[{"ean":"859182400611943234","name":"Společná spotřeba","type":"O","monthly":{"2026-04":{"inSum":-663.4200000000097,"outSum":-492.5399999999973}}},{"ean":"859182400611943241","name":"Byt 1","type":"O","monthly":{"2026-04":{"inSum":-24.799999999999958,"outSum":-16.999999999999943}}},{"ean":"859182400611943258","name":"Byt 2","type":"O","monthly":{"2026-04":{"inSum":-1.440000000000001,"outSum":-0.9800000000000006}}},{"ean":"859182400611943265","name":"Byt 3","type":"O","monthly":{"2026-04":{"inSum":-113.89000000000208,"outSum":-88.85000000000093}}},{"ean":"859182400611943272","name":"Byt 4","type":"O","monthly":{"2026-04":{"inSum":-4.719999999999944,"outSum":-3.3399999999999728}}},{"ean":"859182400611943470","name":"Byt 5","type":"O","monthly":{"2026-04":{"inSum":-80.77000000000116,"outSum":-63.739999999999625}}},{"ean":"859182400611943487","name":"Byt 6","type":"O","monthly":{"2026-04":{"inSum":-5.929999999999948,"outSum":-4.4299999999999615}}},{"ean":"859182400611943500","name":"Byt 7","type":"O","monthly":{"2026-04":{"inSum":-2.8799999999999826,"outSum":-2.0799999999999996}}},{"ean":"859182400611944118","name":"Byt 8","type":"O","monthly":{"2026-04":{"inSum":-1.460000000000001,"outSum":-0.9900000000000007}}},{"ean":"859182400611944149","name":"Byt 9","type":"O","monthly":{"2026-04":{"inSum":-2.1699999999999977,"outSum":-1.5800000000000012}}},{"ean":"859182400611944156","name":"Byt 10","type":"O","monthly":{"2026-04":{"inSum":-1.6200000000000012,"outSum":-1.1300000000000008}}},{"ean":"859182400611944620","name":"Byt 11","type":"O","monthly":{"2026-04":{"inSum":-2.06,"outSum":-1.410000000000001}}},{"ean":"859182400611944637","name":"Byt 12","type":"O","monthly":{"2026-04":{"inSum":-4.67999999999995,"outSum":-2.8799999999999826}}},{"ean":"859182400611944163","name":"Byt 13","type":"O","monthly":{"2026-04":{"inSum":-65.19999999999997,"outSum":-49.31000000000046}}},{"ean":"859182400611944170","name":"Byt 14","type":"O","monthly":{"2026-04":{"inSum":-1.440000000000001,"outSum":-1.0400000000000007}}},{"ean":"859182400611944187","name":"Byt 15","type":"O","monthly":{"2026-04":{"inSum":-82.14000000000073,"outSum":-63.9900000000001}}},{"ean":"859182400611944194","name":"Byt 16","type":"O","monthly":{"2026-04":{"inSum":-2.159999999999998,"outSum":-1.5500000000000012}}},{"ean":"859182400611944200","name":"Byt 17","type":"O","monthly":{"2026-04":{"inSum":-3.6299999999999666,"outSum":-2.3799999999999932}}},{"ean":"859182400611944316","name":"Byt 18","type":"O","monthly":{"2026-04":{"inSum":-5.649999999999938,"outSum":-4.029999999999959}}},{"ean":"859182400611944323","name":"Byt 19","type":"O","monthly":{"2026-04":{"inSum":-3.329999999999973,"outSum":-2.349999999999994}}},{"ean":"859182400611944644","name":"Byt 20","type":"O","monthly":{"2026-04":{"inSum":-31.9100000000018,"outSum":-22.600000000000566}}},{"ean":"859182400611944347","name":"Byt 21","type":"O","monthly":{"2026-04":{"inSum":-52.09999999999999,"outSum":-39.36999999999995}}},{"ean":"859182400611944354","name":"Byt 22","type":"O","monthly":{"2026-04":{"inSum":-3.7199999999999647,"outSum":-2.819999999999984}}},{"ean":"859182400611944361","name":"Byt 23","type":"O","monthly":{"2026-04":{"inSum":-154.13000000000002,"outSum":-126.1100000000011}}},{"ean":"859182400611944378","name":"Byt 24","type":"O","monthly":{"2026-04":{"inSum":-6.709999999999901,"outSum":-4.839999999999941}}},{"ean":"859182400611944385","name":"Byt 25","type":"O","monthly":{"2026-04":{"inSum":-10.799999999999866,"outSum":-6.349999999999932}}},{"ean":"859182400611944392","name":"Byt 26","type":"O","monthly":{"2026-04":{"inSum":-2.149999999999998,"outSum":-1.5600000000000012}}}],"groupTotals":{"2026-04":{"production":949.1599999999978,"shared":325.65999999999747,"surplus":623.5000000000003,"consumption":1334.9100000000149,"received":325.6600000000152,"fromGrid":1009.2499999999995}}}];
+
+const years = [...new Set(months.map(m => m.split('-')[0]))].sort();
+const monthNames = ['', 'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
+  'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'];
+
+let selectedYear = 'all';
+let selectedMonth = 'all';
+
+function fmt(n) {
+  const parts = n.toFixed(2).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return parts.join(',');
+}
+function effClass(pct) { return pct >= 50 ? 'eff-high' : pct >= 20 ? 'eff-mid' : 'eff-low'; }
+
+function activeMonths() {
+  return months.filter(m => {
+    const [y, mo] = m.split('-');
+    if (selectedYear !== 'all' && y !== selectedYear) return false;
+    if (selectedMonth !== 'all' && mo !== selectedMonth) return false;
+    return true;
+  });
+}
+
+function visibleColumns() {
+  if (selectedYear !== 'all' && selectedMonth === 'all') {
+    return months.filter(m => m.startsWith(selectedYear));
+  }
+  if (selectedYear === 'all' && selectedMonth === 'all') return months;
+  return [];
+}
+
+function renderFilters() {
+  const yEl = document.getElementById('year-filter');
+  let yHtml = '<span class="filter-label">Rok:</span>';
+  yHtml += '<button class="month-btn ' + (selectedYear === 'all' ? 'active' : '') + '" onclick="selectYear(\'all\')">Vše</button>';
+  for (const y of years) {
+    yHtml += '<button class="month-btn ' + (selectedYear === y ? 'active' : '') + '" onclick="selectYear(\'' + y + '\')">' + y + '</button>';
+  }
+  yEl.innerHTML = yHtml;
+
+  const mEl = document.getElementById('month-filter');
+  const monthNums = new Set();
+  for (const m of months) {
+    const [y, mo] = m.split('-');
+    if (selectedYear === 'all' || y === selectedYear) monthNums.add(mo);
+  }
+  let mHtml = '<span class="filter-label">Měsíc:</span>';
+  mHtml += '<button class="month-btn ' + (selectedMonth === 'all' ? 'active' : '') + '" onclick="selectMonthNum(\'all\')">Vše</button>';
+  for (const mo of [...monthNums].sort()) {
+    mHtml += '<button class="month-btn ' + (selectedMonth === mo ? 'active' : '') + '" onclick="selectMonthNum(\'' + mo + '\')">' + monthNames[parseInt(mo)] + '</button>';
+  }
+  mEl.innerHTML = mHtml;
+}
+
+function selectYear(y) { selectedYear = y; selectedMonth = 'all'; renderAll(); }
+function selectMonthNum(mo) { selectedMonth = mo; renderAll(); }
+
+function aggForMonths(monthly, ms, neg) {
+  let inSum = 0, outSum = 0;
+  for (const m of ms) {
+    if (!monthly[m]) continue;
+    inSum += Math.abs(monthly[m].inSum);
+    outSum += Math.abs(monthly[m].outSum);
+  }
+  return { inSum, outSum, diff: inSum - outSum };
+}
+
+function renderGroupSummary(g) {
+  const ms = activeMonths();
+  let prod = 0, shared = 0, cons = 0, received = 0;
+  for (const m of ms) {
+    if (!g.groupTotals[m]) continue;
+    prod += g.groupTotals[m].production;
+    shared += g.groupTotals[m].shared;
+    cons += g.groupTotals[m].consumption;
+    received += g.groupTotals[m].received;
+  }
+  const prodEff = prod > 0 ? shared / prod * 100 : 0;
+  const consEff = cons > 0 ? received / cons * 100 : 0;
+
+  return '<div class="cards-grid">' +
+    '<div class="card-group"><div class="group-title">Výroba (FVE)</div><div class="metrics">' +
+      '<div class="metric blue"><div class="label">Celková výroba</div><div class="value">' + fmt(prod) + ' <span class="unit">kWh</span></div></div>' +
+      '<div class="metric green"><div class="label">Nasdíleno</div><div class="value">' + fmt(shared) + ' <span class="unit">kWh</span></div></div>' +
+      '<div class="metric orange"><div class="label">Efektivita</div><div class="value">' + fmt(prodEff) + ' <span class="unit">%</span></div></div>' +
+    '</div></div>' +
+    '<div class="card-group"><div class="group-title">Spotřeba bytů + společná</div><div class="metrics">' +
+      '<div class="metric purple"><div class="label">Celková spotřeba</div><div class="value">' + fmt(cons) + ' <span class="unit">kWh</span></div></div>' +
+      '<div class="metric green"><div class="label">Přijato sdílením</div><div class="value">' + fmt(received) + ' <span class="unit">kWh</span></div></div>' +
+      '<div class="metric orange"><div class="label">Pokrytí</div><div class="value">' + fmt(consEff) + ' <span class="unit">%</span></div></div>' +
+    '</div></div>' +
+    '</div>';
+}
+
+function renderProducersTable(g) {
+  const ms = activeMonths();
+  const visCols = visibleColumns();
+  let html = '<table><thead><tr><th>Výrobna</th>';
+  for (const m of visCols) html += '<th class="num">' + monthLabels[m] + '</th>';
+  html += '<th class="num">Výroba (kWh)</th><th class="num">Nasdíleno (kWh)</th><th class="num">Přebytek (kWh)</th><th class="num">Efektivita</th></tr></thead><tbody>';
+
+  let totProd = 0, totShared = 0, totSurplus = 0;
+  for (const p of g.producers) {
+    const a = aggForMonths(p.monthly, ms);
+    totProd += a.inSum; totShared += a.diff; totSurplus += a.outSum;
+    html += '<tr><td>' + p.name + '</td>';
+    for (const m of visCols) {
+      const mm = aggForMonths(p.monthly, [m]);
+      html += '<td class="num">' + fmt(mm.diff) + '</td>';
+    }
+    const eff = a.inSum > 0 ? a.diff / a.inSum * 100 : 0;
+    html += '<td class="num">' + fmt(a.inSum) + '</td><td class="num">' + fmt(a.diff) + '</td><td class="num">' + fmt(a.outSum) + '</td>';
+    html += '<td class="num eff ' + effClass(eff) + '">' + fmt(eff) + ' %</td></tr>';
+  }
+  if (g.producers.length === 0) {
+    html += '<tr><td colspan="' + (5 + visCols.length) + '" style="color:#a0aec0;text-align:center">Žádná data o výrobě</td></tr>';
+  } else {
+    const totEff = totProd > 0 ? totShared / totProd * 100 : 0;
+    html += '<tr class="total-row"><td><strong>Celkem</strong></td>';
+    for (const m of visCols) {
+      let mm = 0;
+      for (const p of g.producers) { mm += aggForMonths(p.monthly, [m]).diff; }
+      html += '<td class="num">' + fmt(mm) + '</td>';
+    }
+    html += '<td class="num">' + fmt(totProd) + '</td><td class="num">' + fmt(totShared) + '</td><td class="num">' + fmt(totSurplus) + '</td>';
+    html += '<td class="num eff ' + effClass(totEff) + '">' + fmt(totEff) + ' %</td></tr>';
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+function renderConsumersTable(g) {
+  const ms = activeMonths();
+  const visCols = visibleColumns();
+  let html = '<table><thead><tr><th>Odběrné místo</th>';
+  for (const m of visCols) html += '<th class="num">' + monthLabels[m] + '</th>';
+  html += '<th class="num">Spotřeba (kWh)</th><th class="num">Nasdíleno (kWh)</th><th class="num">Ze sítě (kWh)</th><th class="num">Pokrytí</th></tr></thead><tbody>';
+
+  let totCons = 0, totRcv = 0, totGrid = 0;
+  for (const c of g.consumers) {
+    const a = aggForMonths(c.monthly, ms);
+    totCons += a.inSum; totRcv += a.diff; totGrid += a.outSum;
+    html += '<tr><td>' + c.name + '</td>';
+    for (const m of visCols) {
+      const mm = aggForMonths(c.monthly, [m]);
+      html += '<td class="num">' + fmt(mm.diff) + '</td>';
+    }
+    const eff = a.inSum > 0 ? a.diff / a.inSum * 100 : 0;
+    html += '<td class="num">' + fmt(a.inSum) + '</td><td class="num">' + fmt(a.diff) + '</td><td class="num">' + fmt(a.outSum) + '</td>';
+    html += '<td class="num eff ' + effClass(eff) + '">' + fmt(eff) + ' %</td></tr>';
+  }
+  if (g.consumers.length === 0) {
+    html += '<tr><td colspan="' + (5 + visCols.length) + '" style="color:#a0aec0;text-align:center">Žádná data o spotřebě</td></tr>';
+  } else {
+    const totEff = totCons > 0 ? totRcv / totCons * 100 : 0;
+    html += '<tr class="total-row"><td><strong>Celkem</strong></td>';
+    for (const m of visCols) {
+      let mm = 0;
+      for (const c of g.consumers) { mm += aggForMonths(c.monthly, [m]).diff; }
+      html += '<td class="num">' + fmt(mm) + '</td>';
+    }
+    html += '<td class="num">' + fmt(totCons) + '</td><td class="num">' + fmt(totRcv) + '</td><td class="num">' + fmt(totGrid) + '</td>';
+    html += '<td class="num eff ' + effClass(totEff) + '">' + fmt(totEff) + ' %</td></tr>';
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+function renderGroup(g) {
+  return '<div class="group-section">' +
+    '<div class="group-header"><h2>' + g.label + '</h2><div class="group-sub">Skupina sdílení ' + g.id + '</div></div>' +
+    '<div class="group-body">' +
+      renderGroupSummary(g) +
+      '<div class="subsection"><h3>Výrobna</h3><div class="table-scroll">' + renderProducersTable(g) + '</div></div>' +
+      '<div class="subsection"><h3>Odběrná místa</h3><div class="table-scroll">' + renderConsumersTable(g) + '</div></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderAll() {
+  renderFilters();
+  document.getElementById('groups-container').innerHTML =
+    groupBlocks.map(renderGroup).join('');
+}
+
+renderAll();
+</script>
+</body>
+</html>
