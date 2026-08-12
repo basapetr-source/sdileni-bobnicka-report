@@ -2,8 +2,10 @@ name: Monthly Energy Sharing Report (Bobnická)
 
 on:
   schedule:
-    # 12th of each month at 06:00 UTC (08:00 CET / 07:00 CEST)
+    # 12th of each month at 06:00 UTC (08:00 CET / 07:00 CEST).
+    # Retry on the 13th — the guard step skips it if the 12th already produced exports.
     - cron: '0 6 12 * *'
+    - cron: '0 6 13 * *'
   workflow_dispatch:
 
 permissions:
@@ -14,17 +16,44 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci || npm install
 
+      # Only gates scheduled runs, so a manual re-run after a fix always executes.
+      - name: Skip if previous month already processed
+        id: guard
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "Rucni spusteni - guard se neuplatnuje."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          PREV_MONTH=$(date -u -d "$(date -u +%Y-%m-01) -1 day" +%Y-%m)
+          DONE=true
+          for GROUP in A B; do
+            FILE="exports/Export-${GROUP}-${PREV_MONTH}-inout.csv"
+            if [ ! -f "$FILE" ] || [ "$(grep -c '[^[:space:]]' "$FILE")" -lt 5 ]; then
+              DONE=false
+            fi
+          done
+          if [ "$DONE" = true ]; then
+            echo "Mesic ${PREV_MONTH} jiz zpracovan pro obe skupiny. Preskakuji zbytek pipeline."
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "Mesic ${PREV_MONTH} jeste nezpracovan, pokracuji."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run monthly pipeline (export + report)
+        if: steps.guard.outputs.should_run == 'true'
         env:
           EDC_USERNAME: ${{ secrets.EDC_USERNAME }}
           EDC_PASSWORD: ${{ secrets.EDC_PASSWORD }}
@@ -33,11 +62,13 @@ jobs:
         run: node run-monthly.js
 
       - name: Copy report to docs/ for GitHub Pages
+        if: steps.guard.outputs.should_run == 'true'
         run: |
           mkdir -p docs
           cp report.html docs/index.html
 
       - name: Commit and push outputs
+        if: steps.guard.outputs.should_run == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -46,7 +46,7 @@ The CSV filename convention `Export-{A|B}-{YYYY}-{MM}-inout.csv` is how `parse-d
 
 - Repo: **basapetr-source/sdileni-bobnicka-report** (public)
 - Online: **https://basapetr-source.github.io/sdileni-bobnicka-report/** (Pages from `/docs` on `main`)
-- Workflow `.github/workflows/monthly-update.yml`: cron `0 6 12 * *` = 12th of month, 06:00 UTC.
+- Workflow `.github/workflows/monthly-update.yml`: cron on the 12th and 13th, 06:00 UTC. The 13th is a retry — a guard step skips the run when both `exports/Export-{A,B}-{prev month}-inout.csv` already exist and are non-empty. The guard applies **only to scheduled runs**, so `workflow_dispatch` always executes (useful for re-running after a fix).
 - Secrets: `EDC_USERNAME`, `EDC_PASSWORD`, `SSE_ID_A`, `SSE_ID_B`.
 - Pipeline commits `exports/*.csv`, `report.html`, `docs/index.html` back to repo.
 
