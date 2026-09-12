@@ -1,11 +1,20 @@
 name: Monthly Energy Sharing Report (Bobnická)
 
+# NOT scheduled any more (2026-09-12). EDC drops TCP connections from GitHub's
+# hosted runner IP ranges — DNS resolves, the handshake never completes — which
+# killed the 12.9. run at login with UND_ERR_CONNECT_TIMEOUT. Verified from a
+# runner that day: 20/20 connect attempts to sso/api/portal.edc-cr.cz timed out
+# over 10 minutes, so fetchWithRetry cannot work around it either.
+#
+# The monthly job now runs locally on Petr's PC (Czech IP) via the Windows
+# scheduled task SdileniBobnickaMonthly — see run-monthly-local.ps1. A
+# self-hosted runner was deliberately NOT used here: this repo is public, and a
+# runner on a public repo lets a fork's pull request execute code on that PC.
+# For the same reason, do not add a pull_request trigger to this workflow.
+#
+# The manual trigger is kept as a probe: dispatch it to check whether EDC has
+# lifted the block. If it passes, the cron lines can come back.
 on:
-  schedule:
-    # 12th of each month at 06:00 UTC (08:00 CET / 07:00 CEST).
-    # Retry on the 13th — the guard step skips it if the 12th already produced exports.
-    - cron: '0 6 12 * *'
-    - cron: '0 6 13 * *'
   workflow_dispatch:
 
 permissions:
