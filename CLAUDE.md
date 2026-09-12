@@ -50,6 +50,8 @@ The CSV filename convention `Export-{A|B}-{YYYY}-{MM}-inout.csv` is how `parse-d
 - Workflow `.github/workflows/monthly-update.yml`: cron on the 12th and 13th, 06:00 UTC. The 13th is a retry — a guard step skips the run when both `exports/Export-{A,B}-{prev month}-inout.csv` already exist and are non-empty. The guard applies **only to scheduled runs**, so `workflow_dispatch` always executes (useful for re-running after a fix).
 - Secrets: `EDC_USERNAME`, `EDC_PASSWORD`, `SSE_ID_A`, `SSE_ID_B`.
 - Pipeline commits `exports/*.csv`, `report.html`, `docs/index.html` back to repo.
+- Commit message `Měsíční report YYYY-MM` uses the **run** month, not the data month — a commit labelled 2026-09 carries srpen (August) data. Follow that convention when committing a catch-up run by hand.
+- Publish straight to `main` (no feature branch): Pages serves `/docs` from `main`, and the workflow itself pushes there, so a PR branch would not go live.
 
 ## Report terminology (user preference)
 
