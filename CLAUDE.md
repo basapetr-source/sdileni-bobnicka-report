@@ -40,6 +40,7 @@ The CSV filename convention `Export-{A|B}-{YYYY}-{MM}-inout.csv` is how `parse-d
   - **37848** = Rezidence nad Mrlinou vchod B
 - `lib/edc-api.js` no longer hardcodes SSE_ID — caller passes it per export.
 - IN/OUT export uses `calculationType: MONTHLY`, `profileType: STANDARD`. EDC still returns 15-min interval data; report aggregates monthly.
+- All HTTP calls go through `fetchWithRetry` in `lib/edc-api.js` (4 attempts, 2/5/15 s backoff, retries network errors + 429/502/503/504). Added after the 2026-09-12 run died on a single `ConnectTimeoutError` to `sso.portal.edc-cr.cz` from the GitHub runner.
 - **Export endpoint changed 08/2026** (404'd the 2026-08-12 run, same break as in `Sdileni_energie`): the unified `POST /profiles-data/export-profiles-data` is gone, replaced by `POST /profiles-data/{standard|pair}/export`. Body changed too — `sseId` is a plain number (not an array), dates are `yyyy-MM-dd` (not ISO timestamps), and `inputType` / `currentEnteredDateTime` / `profileType` were dropped. The export response now returns the planned report `{id, name, reportState}`, so `exportAndDownload` polls that ID (`pollReportById`) instead of diffing the report list.
 
 ## GitHub repo & automation
